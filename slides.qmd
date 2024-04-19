@@ -3,79 +3,279 @@ format: revealjs
 self-contained: true
 ---
 
-McLaughlin, Mullaney, and Littlefair, “Using Gaussian Processes to Detect AGN Flares.”
-
-McLaughlin, Summer A. J., James R. Mullaney, and Stuart P. Littlefair. “Using Gaussian Processes to Detect AGN Flares.” arXiv, March 8, 2024. http://arxiv.org/abs/2403.05354.
-
-
 ## 
 
 <center>
-![<http://arxiv.org/abs/2403.05354>](figures/title-authors-abstract.png)
+![<http://arxiv.org/abs/2403.05354>](images/title-authors-abstract.png)
 </center>
 
 ## Summary
 
-- Use GP regression for classifying AGN light curves as containing flares or not.
-- Synthetic light curves with injected flares
-- ZTF light curves with injected and "real" flares
-- Effects of observational cadence severely affects detection
-- FPR are reasonable but retrieval is very low 
-- Detected 17 AGN flare candidates from ZTF public data release
+- Aim: Classify AGN light curves as containing a flare or not.
+- Use GPs to statistically summarise an AGN light curve.
+- Applied GPR to progressively more realistic AGN light curves:
+    - idealised light curves injected with synthetic flares, to
+    - real ZTF light curves.
+- Detected 27 AGN flare candidates out of 9035 Type 1 AGN light curves.
+- Effects of observational cadence severely affects detection.
+- FPR are reasonable but TPR is very low for "real" flares.
+
 
 ## Data
 
-- AGN flares are rare.
+1. Simulated damped random walk
+    - n = 10000
+    - Regular 10d cadence
+    - Uniform uncertainties of 0.1 mag
 
-- simulated dampted random walk
-    - n = 10000, regular 10d cadence, uniform uncertainty of 0.1 mag
+2. ZTF Public Data Release 6 (August 2021)
+    - n = 9035 
+    - Optical r-band
+    - Type 1 AGN from SDSS DR7, ALPAKA catalogue
 
-- ZTF Public Data Release 6 (August 2021)
-- Optical r-band
-- n = 9035 Type 1 AGN from SDSS DR7, ALPAKA catalogue
+##
+
+<center>
+![](images/figure02.png){width=65%}
+</center>
 
 ## Method
 
+1. Pre-process the light curve based on the experimental scenario.
+2. Apply Gaussian process regression to model the light curve.
+3. Plot the fitted the hyperparameters.
+4. Compare the location of flaring and non-flaring AGN light curves in the hyperparameter-space.
 
-- Try on synthetic light curves and flares first
-- Gaussian and Gamma flares
-    - 1-2.5 mag, 100-1000 days, random location after day 300, but before 300d remaining
-- subsample to ZTF cadence
-    - will "remove" some flares
-- Try on ZTF data with injected flares
-- Try on ZTF data alone
-- add outliers
-    - 5 sd above the light curve sd
+
+## Scenarios
+
+1. Simulated, uniform cadence, with injected flares.
+2. Simulated, subsampled to ZTF cadence, with injected flares.
+3. Scenario 2 with added outliers.
+4. ZTF light curves with injected flares.
+5. ZTF light curves.
+
+## Flares, Cadence, and Outliers
+
+- Injected flares
+    - Gaussian and Gamma functions.
+    - 1 to 2.5 mag, lasting 100 to 1000 days.
+    - injected at random after 300d, but before last 300d.
+    
+- Subsampling
+    - "interpolated" light curves to ZTF cadences.
+
+- Outliers
+    - one contiguous pair.
+    - 5 std. deviation above that light curve's variability.
+
+##
+
+<center>
+![](images/figure03.png){width=55%}
+</center>
 
 ## GP fitting
 
-- Celerite (Foreman-Mackey et al. 2017)
-- Use Matern 3/2 kernel, assume a zero mean function?
-- MCMC
-    - 12,000 steps with 2,000 burn-n
+- Used `celerite` (Foreman-Mackey et al. 2017).
+- Matern 3/2 kernel
+    - amplitude, $\sigma$.
+    - length scale, $\rho$.
+- No mention of mean function, presumably zero function?
+- Use maximum a posteriori point?
+
+## Results 1: Injected Flares
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure04.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure05.png){width="100%"}</center>
+
+:::
+
+::::
 
 
-## Results
+## Results 2: Subsampled cadence
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure06.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure07.png){width="100%"}</center>
+
+:::
+
+::::
+
+
+## Results 3: Added outliers
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure08.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure09.png){width="100%"}</center>
+
+:::
+
+::::
+
+
+## Results 4: ZTF with injected flares
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure10.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure11.png){width="100%"}</center>
+
+:::
+
+::::
+
+## Probability of flare, $P_\textrm{Flare}$
+
+
+- $\theta$ is indicator variable of whether light curve contains a flare.
+
+$$P(\sigma, \rho, \theta \mid y) \propto P(y \mid \sigma, \rho) \times P(\sigma, \rho \mid \theta) \times P(\theta)$$
+
+- Used MCMC rejection sampling to get samples of $\theta$.
+    - 10000 samples plus 2000 burn-in.
+
+- Arrived at a threshold of $P_\textrm{Flare} = P(\theta = 1) = 0.1$.
+
+## Classification Results 1
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure12.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure14.png){width="100%"}</center>
+
+:::
+
+::::
+
+
+## Classification Results 2
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure15.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure16.png){width="100%"}</center>
+
+:::
+
+::::
+
+## ZTF AGN Flare candidates
+
+<center>
+![](images/figure17.png){width=55%}
+</center>
+
+##
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+<center>![](images/figure18a.png){width="100%"}</center>
+
+:::
+
+::: {.column width="50%"}
+
+<center>![](images/figure18b.png){width="100%"}</center>
+
+:::
+
+::::
+
 
 ## Comments
 
-- "retrieval rate"
-- nice story told by the figures
-- supervised vs unsupervised learning
-- no reasoning behind kernel choice
-- would be nice to see more light curves
-- Gaussian vs Gamma flare? why these?
-- nicely structured experiments: good to see sampling cadence investigated
-    - builds up from simple to more realistic
-- cheating to inject synthetic flare into natural data
-- good to see application of GPs not just interpolating poorly sampled data
-- assume that entire flare is observed and not truncated
-- extend to use multi-band analysis using GPs
-- not clear what the points in figures represent, the "optimised" hyperparameter posterior
-    - should show some uncertainties too
-- would be interesting to see the "flow" of non-flares to flaring
-- don't just connect the dots in a time-series with gaps
-- subsampling might induce features, not just remove them
-- no comment on the bimodal distribution of ZTF light curves
+- Very nice narrative told in text and figures: synthetic to real data.
+- Good to see application of GPs as not just interpolating poorly sampled data.
+- Would be nice to see more light curves!
+- Good discussion of limitations.
+- Important reminder that sometimes low FPR is more important than high TPR, e.g., searching through large volumes of data.
 
 
+## Queries 
+
+- What were the parameters of the injected Gaussian and Gamma flares?
+- Why is the hyperparameter distribution of ZTF light curves bimodal?
+- Cutoff $P_{Flare} > 0.1$ held fixed for all scenarios, even real light curves which seems unreasonable.
+
+
+## Statistical Nitpicking
+
+- No justification for structure of GP, i.e., mean, kernel.
+- "Recall" not "Retrieval" (aka. true positive rate).
+- Not clear what the scatter plots are plotting. Maximum _a posteriori_ estimate?
+- All point estimates, no uncertainty intervals anywhere!
+- Don't just connect-the-dots for a gappy time-series. Perhaps use smoothing splines for visualisations.
+
+## Performance on real > synthetic
+
+- Synthetic scenarios are not reflective of reality?
+- More thought needed on shape of flares and how they are inserted into the original light curve.
+- Subsampling might induce features, not just remove them.
+
+<center>
+![](images/quotation-sec6.2.png)
+</center>
+
+
+## Extensions
+
+- Multi-band analysis
+- Accommodate truncated flares.
+- Model the migration of light curves in the hyperparameter-space.
+
+## Preach it brother!
+
+<center>
+![](images/quotation-sec2.png){width=80%}
+</center>
