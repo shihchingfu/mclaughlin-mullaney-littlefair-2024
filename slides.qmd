@@ -1,0 +1,81 @@
+---
+format: revealjs
+self-contained: true
+---
+
+McLaughlin, Mullaney, and Littlefair, “Using Gaussian Processes to Detect AGN Flares.”
+
+McLaughlin, Summer A. J., James R. Mullaney, and Stuart P. Littlefair. “Using Gaussian Processes to Detect AGN Flares.” arXiv, March 8, 2024. http://arxiv.org/abs/2403.05354.
+
+
+## 
+
+<center>
+![<http://arxiv.org/abs/2403.05354>](figures/title-authors-abstract.png)
+</center>
+
+## Summary
+
+- Use GP regression for classifying AGN light curves as containing flares or not.
+- Synthetic light curves with injected flares
+- ZTF light curves with injected and "real" flares
+- Effects of observational cadence severely affects detection
+- FPR are reasonable but retrieval is very low 
+- Detected 17 AGN flare candidates from ZTF public data release
+
+## Data
+
+- AGN flares are rare.
+
+- simulated dampted random walk
+    - n = 10000, regular 10d cadence, uniform uncertainty of 0.1 mag
+
+- ZTF Public Data Release 6 (August 2021)
+- Optical r-band
+- n = 9035 Type 1 AGN from SDSS DR7, ALPAKA catalogue
+
+## Method
+
+
+- Try on synthetic light curves and flares first
+- Gaussian and Gamma flares
+    - 1-2.5 mag, 100-1000 days, random location after day 300, but before 300d remaining
+- subsample to ZTF cadence
+    - will "remove" some flares
+- Try on ZTF data with injected flares
+- Try on ZTF data alone
+- add outliers
+    - 5 sd above the light curve sd
+
+## GP fitting
+
+- Celerite (Foreman-Mackey et al. 2017)
+- Use Matern 3/2 kernel, assume a zero mean function?
+- MCMC
+    - 12,000 steps with 2,000 burn-n
+
+
+## Results
+
+## Comments
+
+- "retrieval rate"
+- nice story told by the figures
+- supervised vs unsupervised learning
+- no reasoning behind kernel choice
+- would be nice to see more light curves
+- Gaussian vs Gamma flare? why these?
+- nicely structured experiments: good to see sampling cadence investigated
+    - builds up from simple to more realistic
+- cheating to inject synthetic flare into natural data
+- good to see application of GPs not just interpolating poorly sampled data
+- assume that entire flare is observed and not truncated
+- extend to use multi-band analysis using GPs
+- not clear what the points in figures represent, the "optimised" hyperparameter posterior
+    - should show some uncertainties too
+- would be interesting to see the "flow" of non-flares to flaring
+- don't just connect the dots in a time-series with gaps
+- subsampling might induce features, not just remove them
+- no comment on the bimodal distribution of ZTF light curves
+
+
