@@ -247,6 +247,7 @@ $$P(\sigma, \rho, \theta \mid y) \propto P(y \mid \sigma, \rho) \times P(\sigma,
 - What were the parameters of the injected Gaussian and Gamma flares?
 - Why is the hyperparameter distribution of ZTF light curves bimodal?
 - Cutoff $P_{Flare} > 0.1$ held fixed for all scenarios, even real light curves which seems unreasonable.
+- Is there code available?
 
 
 ## Statistical Nitpicking
